@@ -9,11 +9,9 @@
 
 -ifdef(TEST).
 
--include("al_distributed.hrl").
--include("al_distributed_test.hrl").
-
 -include_lib("eunit/include/eunit.hrl").
 
+-define(TEST_TIMEOUT, 50).
 
 -import(utils, [sleep/2, get_interval/2, get_interval/3, get_time_difference/2, get_time_difference/3,
 binary_join/2, need_atom/1, need_binary/1, atom_join/1, atom_join/2, need_integer/1,
