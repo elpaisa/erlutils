@@ -287,13 +287,11 @@ debug(Message, Args) ->
   debug(Message, Args, debug).
 debug(Message, Args, Type) ->
   case Type of
-    debug ->
-      error_logger:debug_msg(Message, Args);
     warning ->
       error_logger:warning_msg(Message, Args);
     error ->
       error_logger:error_msg(Message, Args);
-    info ->
+    _Any ->
       error_logger:info_msg(Message, Args)
   end.
 
