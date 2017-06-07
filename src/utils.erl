@@ -390,7 +390,7 @@ find(E, [H|T]) ->
   end;
 find(V, E) -> V == E.
 
--spec rem_all_occurrences(Elem :: binary()) -> binary().
+-spec rem_all_occurrences(Elem :: binary(), List :: list()) -> binary().
 %%----------------------------------------------------------------------
 %% @doc Remove all occurrences in a string based on a list
 %%----------------------------------------------------------------------
