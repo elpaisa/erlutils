@@ -453,4 +453,4 @@ cleanup_by_list(String, List)->
 cleanup_by_list(String, [], _) ->
   String;
 cleanup_by_list(String, [H|T], Replace) ->
-  cleanup_by_list(re:replace(String, H, Replace,[global,{return,list}]), T).
+  cleanup_by_list(re:replace(String, H, Replace,[global,{return,list}]), T, Replace).
