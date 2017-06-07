@@ -16,7 +16,8 @@
 
 %% String helpers
 -export([binary_join/2, need_atom/1, need_binary/1, atom_join/1, atom_join/2, need_integer/1, need_list/1]).
--export([list_join/1, list_join/2, need_positive/1]).
+-export([list_join/1, list_join/2, need_positive/1, get_ips_from_string/1]).
+-export([do_regex/2, cleanup_by_list/2, cleanup_by_list/3]).
 %% Other utilities
 -export([get_attribute/2, parse_ip/1, normalize_body/1, calc_size/1, get_geo_location/1]).
 -export([debug/3, debug/2, debug/1, warning/2, warning/1, err/1, err/2, inf/1, inf/2]).
@@ -346,6 +347,10 @@ default(Item, Default) when Item =:= undefined ->
 default(Item, _Default) ->
   Item.
 
+-spec get_module_info(Mod :: atom()) -> list().
+%%----------------------------------------------------------------------
+%% @doc Gets all the info for a loaded module
+%%----------------------------------------------------------------------
 get_module_info(Mod) when Mod =:= undefined ->
   false;
 get_module_info(Mod) ->
@@ -353,10 +358,13 @@ get_module_info(Mod) ->
     (Mod):module_info()
   catch
     _:_  ->
-      utils:err("Module ~p doesn't exist, please check rest_handler param in your config", [Mod]),
       false
   end.
 
+-spec list_find(Element :: any(), list()) -> true | false.
+%%----------------------------------------------------------------------
+%% @doc Find an item in a list
+%%----------------------------------------------------------------------
 list_find ( _Element, [] ) ->
   false;
 
@@ -366,7 +374,10 @@ list_find ( Element, [ Item | ListTail ] ) ->
     false   ->  list_find(Element, ListTail)
   end.
 
-
+-spec find(E :: any(), list()) -> true | false.
+%%----------------------------------------------------------------------
+%% @doc Find an item in a list of tuples
+%%----------------------------------------------------------------------
 find(_, []) -> false;
 
 find(E, T) when is_tuple(T) ->
@@ -377,12 +388,19 @@ find(E, [H|T]) ->
     false -> find(E, T);
     true -> true
   end;
-
 find(V, E) -> V == E.
 
+-spec rem_all_occurrences(Elem :: binary()) -> binary().
+%%----------------------------------------------------------------------
+%% @doc Remove all occurrences in a string based on a list
+%%----------------------------------------------------------------------
 rem_all_occurrences(Elem, List) ->
   [E || E <- List, E =/= Elem].
 
+-spec keys(TableName :: atom()) -> list().
+%%----------------------------------------------------------------------
+%% @doc Get a list of all the keys in an ETS
+%%----------------------------------------------------------------------
 keys(TableName) ->
   FirstKey = ets:first(TableName),
   keys(TableName, FirstKey, [FirstKey]).
@@ -392,3 +410,47 @@ keys(_TableName, '$end_of_table', ['$end_of_table'|Acc]) ->
 keys(TableName, CurrentKey, Acc) ->
   NextKey = ets:next(TableName, CurrentKey),
   keys(TableName, NextKey, [NextKey|Acc]).
+
+
+-spec get_ips_from_string(String :: binary()) -> list().
+%%----------------------------------------------------------------------
+%% @doc Best attempt to get ipv6 and ipv4 from a string using regex
+%%----------------------------------------------------------------------
+get_ips_from_string(String)->
+  Patterns = [
+    "((?:\\d{1,3}\\.){3}\\d{1,3})",
+    "(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))"
+  ],
+  lists:merge(do_regex(String, Patterns)).
+
+-spec do_regex(String :: binary(), Patterns :: list()) -> list().
+%%----------------------------------------------------------------------
+%% @doc Execute a list of regex against a string
+%%----------------------------------------------------------------------
+do_regex(String, Patterns) ->
+  do_regex(String, Patterns, []).
+
+do_regex(_String, [], Matches) ->
+  Matches;
+do_regex(String, [H|T], Matches) ->
+  Regex = re:run(String, H, [global, {capture, first, list}]),
+  Match = case Regex of
+            {match, Ip} ->
+              lists:append(Matches, Ip);
+            _->
+              lists:append(Matches, [])
+          end,
+  do_regex(String, T, Match).
+
+
+-spec cleanup_by_list(String :: binary(), List :: list()) -> binary().
+%%----------------------------------------------------------------------
+%% @doc str_replace equivalent
+%%----------------------------------------------------------------------
+cleanup_by_list(String, List)->
+  cleanup_by_list(String, List, "").
+
+cleanup_by_list(String, [], _) ->
+  String;
+cleanup_by_list(String, [H|T], Replace) ->
+  cleanup_by_list(re:replace(String, H, Replace,[global,{return,list}]), T).
