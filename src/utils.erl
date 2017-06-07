@@ -450,6 +450,8 @@ do_regex(String, [H|T], Matches) ->
 cleanup_by_list(String, List)->
   cleanup_by_list(String, List, "").
 
+cleanup_by_list(String, List, _) when is_list(List) =/= true ->
+  String;
 cleanup_by_list(String, [], _) ->
   String;
 cleanup_by_list(String, [H|T], Replace) ->
