@@ -1,0 +1,40 @@
+/deps
+/ebin
+.rebar
+*.beam
+erl_crash.dump
+
+# vim
+*.swp
+
+# dailyzer
+/.dialyzer_deps_plt
+/dialyzer.output
+dialyzer.sh
+
+# eunit
+/.eunit
+*.coverage.xml
+eunit.log
+
+# ct
+/logs
+ct.coverdata
+
+# developers copy
+*.config
+
+# documentation
+doc/api
+
+# Ignore OSX DS_STORE file
+.DS_Store
+.idea
+*.iml
+rebar.lock
+compile_commands.json
+*.coverdata
+_build
+TEST*
+*.crashdump
+*.log
