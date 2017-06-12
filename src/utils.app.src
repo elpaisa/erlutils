@@ -1,4 +1,3 @@
-
 {application, utils,
   [
     {description, ""},
@@ -8,5 +7,9 @@
       kernel,
       stdlib
     ]},
-    {env, []}
+    {modules, [utils]},
+    {env, []},
+    {contributors, ["John Diaz"]},
+    {licenses, ["MIT"]},
+    {links, [{"Github", "https://github.com/elpaisa/erlutils"}]}
   ]}.
