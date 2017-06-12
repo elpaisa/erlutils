@@ -1,6 +1,6 @@
 {application, utils,
   [
-    {description, ""},
+    {description, "Common utility functions for erlang"},
     {vsn, git},
     {registered, []},
     {applications, [
