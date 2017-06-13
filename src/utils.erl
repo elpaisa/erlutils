@@ -269,7 +269,8 @@ calc_size(String) ->
 %% @doc Gets geoip location for an IP address
 %%----------------------------------------------------------------------
 get_geo_location(Ip) ->
-  case egeoip:lookup_pl(parse_ip(Ip)) of
+  List = need_list(Ip),
+  case egeoip:lookup_pl(parse_ip(List)) of
     {error, _} ->
       <<"">>;
     GeoIp ->
