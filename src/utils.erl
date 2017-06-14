@@ -23,7 +23,7 @@
 -export([debug/3, debug/2, debug/1, warning/2, warning/1, err/1, err/2, inf/1, inf/2]).
 -export([division/2, division/3, default/2, get_module_info/1]).
 %% List utilities
--export([list_find/2, rem_all_occurrences/2, find/2, keys/1]).
+-export([list_find/2, rem_all_occurrences/2, find/2, keys/1, unique/1]).
 
 
 -spec get_attribute(Key :: binary(), #{}) -> binary() | tuple() | number() | undefined.
@@ -210,6 +210,10 @@ atoms_to_list(List) ->
 %%----------------------------------------------------------------------
 list_join(List) ->
   list_join(List, "_").
+list_join([], _)->
+  [];
+list_join(List, _) when length(List) =:= 1 ->
+  need_list(List);
 list_join(List, Separator) when Separator =/= "_"->
   Lists = atoms_to_list(List),
   string:join(Lists, Separator);
@@ -443,6 +447,11 @@ do_regex(String, [H|T], Matches) ->
           end,
   do_regex(String, T, Match).
 
+
+
+-spec unique(List :: list()) -> list().
+unique(List)->
+  sets:to_list(sets:from_list(List)).
 
 -spec cleanup_by_list(String :: binary(), List :: list()) -> binary().
 %%----------------------------------------------------------------------
