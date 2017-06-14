@@ -210,10 +210,7 @@ atoms_to_list(List) ->
 %%----------------------------------------------------------------------
 list_join(List) ->
   list_join(List, "_").
-list_join([], _)->
-  [];
-list_join(List, _) when length(List) =:= 1 ->
-  need_list(List);
+
 list_join(List, Separator) when Separator =/= "_"->
   Lists = atoms_to_list(List),
   string:join(Lists, Separator);
