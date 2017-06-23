@@ -12,7 +12,7 @@
 -endif.
 
 %% Datetime and timer helpers
--export([sleep/2, get_interval/2, get_interval/3, get_time_difference/2, get_time_difference/3]).
+-export([sleep/2, sleep/3, get_interval/2, get_interval/3, get_time_difference/2, get_time_difference/3]).
 
 %% String helpers
 -export([binary_join/2, need_atom/1, need_binary/1, atom_join/1, atom_join/2, need_integer/1, need_list/1]).
@@ -54,11 +54,16 @@ binary_join(List, Sep) ->
 
 -spec sleep(Time :: integer(), _Type :: atom()) -> ok.
 %%----------------------------------------------------------------------
-%% @doc Uses timer:sleep according to _Type, defaults to hours
+%% @doc Uses timer:sleep according to Type, defaults to hours
 %%----------------------------------------------------------------------
-sleep(Time, _Type) ->
-  debug("Sleep ~p ~p...", [Time, _Type]),
-  Sleep = case _Type of
+sleep(Time, Type)->
+  sleep(Time, Type, true).
+sleep(Time, Type, Debug) when Debug =:= true->
+  debug("Sleep ~p ~p...", [Time, Type]),
+  sleep(Time, Type, false);
+sleep(Time, Type, _Debug) ->
+  Sleep = case Type of
+            ms -> Time;
             minutes -> timer:minutes(Time);
             seconds -> timer:seconds(Time);
             _ -> timer:hours(Time)
