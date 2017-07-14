@@ -15,7 +15,8 @@
 -export([sleep/2, sleep/3, get_interval/2, get_interval/3, get_time_difference/2, get_time_difference/3]).
 
 %% String helpers
--export([binary_join/2, need_atom/1, need_binary/1, atom_join/1, atom_join/2, need_integer/1, need_list/1]).
+-export([binary_join/1, binary_join/2]).
+-export([need_atom/1, need_binary/1, atom_join/1, atom_join/2, need_integer/1, need_list/1]).
 -export([list_join/1, list_join/2, need_positive/1, get_ips_from_string/1]).
 -export([do_regex/2, cleanup_by_list/2, cleanup_by_list/3]).
 %% Other utilities
@@ -35,6 +36,13 @@ get_attribute(Key, Attributes) ->
     null -> undefined;
     R -> R
   end.
+
+-spec binary_join(List :: list()) -> binary().
+%%----------------------------------------------------------------------
+%% @doc Joins a list of binaries
+%%----------------------------------------------------------------------
+binary_join(List)->
+  binary_join(List, <<>>).
 
 -spec binary_join(List :: list(), _Sep :: any()) -> binary().
 %%----------------------------------------------------------------------
