@@ -25,6 +25,8 @@
 -export([division/2, division/3, default/2, get_module_info/1]).
 %% List utilities
 -export([list_find/2, rem_all_occurrences/2, find/2, keys/1, unique/1]).
+%% Escaping utilities
+-export([escape_uri/1]).
 
 
 -spec get_attribute(Key :: binary(), #{}) -> binary() | tuple() | number() | undefined.
@@ -476,3 +478,37 @@ cleanup_by_list(String, [], _) ->
   String;
 cleanup_by_list(String, [H|T], Replace) ->
   cleanup_by_list(re:replace(String, H, Replace,[global,{return,list}]), T, Replace).
+
+
+
+% Utility function to convert a 'form' of name-value pairs into a URL encoded
+% content string.
+
+escape_uri(S) when is_list(S) ->
+  escape_uri(unicode:characters_to_binary(S));
+escape_uri(<<C:8, Cs/binary>>) when C >= $a, C =< $z ->
+  [C] ++ escape_uri(Cs);
+escape_uri(<<C:8, Cs/binary>>) when C >= $A, C =< $Z ->
+  [C] ++ escape_uri(Cs);
+escape_uri(<<C:8, Cs/binary>>) when C >= $0, C =< $9 ->
+  [C] ++ escape_uri(Cs);
+escape_uri(<<C:8, Cs/binary>>) when C == $. ->
+  [C] ++ escape_uri(Cs);
+escape_uri(<<C:8, Cs/binary>>) when C == $- ->
+  [C] ++ escape_uri(Cs);
+escape_uri(<<C:8, Cs/binary>>) when C == $_ ->
+  [C] ++ escape_uri(Cs);
+escape_uri(<<C:8, Cs/binary>>) ->
+  escape_byte(C) ++ escape_uri(Cs);
+escape_uri(<<>>) ->
+  "".
+
+escape_byte(C) ->
+  "%" ++ hex_octet(C).
+
+hex_octet(N) when N =< 9 ->
+  [$0 + N];
+hex_octet(N) when N > 15 ->
+  hex_octet(N bsr 4) ++ hex_octet(N band 15);
+hex_octet(N) ->
+  [N - 10 + $a].
