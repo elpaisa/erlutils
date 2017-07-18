@@ -481,9 +481,8 @@ cleanup_by_list(String, [H|T], Replace) ->
 
 
 
-% Utility function to convert a 'form' of name-value pairs into a URL encoded
-% content string.
-
+-spec escape_uri(String :: binary()) -> list().
+%% @doc Utility function to convert a 'form' of name-value pairs into a URL encoded content string.
 escape_uri(S) when is_list(S) ->
   escape_uri(unicode:characters_to_binary(S));
 escape_uri(<<C:8, Cs/binary>>) when C >= $a, C =< $z ->
