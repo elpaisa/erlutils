@@ -26,7 +26,7 @@
 %% List utilities
 -export([list_find/2, rem_all_occurrences/2, find/2, keys/1, unique/1]).
 %% Escaping utilities
--export([escape_uri/1]).
+-export([escape_uri/1, is_string/1]).
 
 
 -spec get_attribute(Key :: binary(), #{}) -> binary() | tuple() | number() | undefined.
@@ -511,3 +511,9 @@ hex_octet(N) when N > 15 ->
   hex_octet(N bsr 4) ++ hex_octet(N band 15);
 hex_octet(N) ->
   [N - 10 + $a].
+
+isprint(X) when X >= 32, X < 127 -> true;
+isprint(_) -> false.
+
+is_string(List) when is_list(List) -> lists:all(fun isprint/1, List);
+is_string(_) -> false.
