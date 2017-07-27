@@ -26,7 +26,7 @@
 %% List utilities
 -export([list_find/2, rem_all_occurrences/2, find/2, keys/1, unique/1]).
 %% Escaping utilities
--export([escape_uri/1, is_string/1]).
+-export([escape_uri/1, is_string/1, percent/2]).
 
 
 -spec get_attribute(Key :: binary(), #{}) -> binary() | tuple() | number() | undefined.
@@ -517,3 +517,11 @@ isprint(_) -> false.
 
 is_string(List) when is_list(List) -> lists:all(fun isprint/1, List);
 is_string(_) -> false.
+
+-spec percent(Base :: integer(), Divisor :: integer()) -> integer().
+%%----------------------------------------------------------------------
+%% @doc Perform a percent calculation by using a Base number and its Divisor, to get
+%% the percent that represents the last of the base.
+%%----------------------------------------------------------------------
+percent(Base, Divisor)->
+  round((Divisor / Base) * 100).
