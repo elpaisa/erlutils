@@ -26,7 +26,7 @@
 %% List utilities
 -export([list_find/2, rem_all_occurrences/2, find/2, keys/1, unique/1]).
 %% Escaping utilities
--export([escape_uri/1, is_string/1, percent/2]).
+-export([escape_uri/1, is_string/1, percent/2, is_alive/1]).
 
 
 -spec get_attribute(Key :: binary(), #{}) -> binary() | tuple() | number() | undefined.
@@ -43,7 +43,7 @@ get_attribute(Key, Attributes) ->
 %%----------------------------------------------------------------------
 %% @doc Joins a list of binaries
 %%----------------------------------------------------------------------
-binary_join(List)->
+binary_join(List) ->
   binary_join(List, <<>>).
 
 -spec binary_join(List :: list(), _Sep :: any()) -> binary().
@@ -66,9 +66,9 @@ binary_join(List, Sep) ->
 %%----------------------------------------------------------------------
 %% @doc Uses timer:sleep according to Type, defaults to hours
 %%----------------------------------------------------------------------
-sleep(Time, Type)->
+sleep(Time, Type) ->
   sleep(Time, Type, true).
-sleep(Time, Type, Debug) when Debug =:= true->
+sleep(Time, Type, Debug) when Debug =:= true ->
   debug("Sleep ~p ~p...", [Time, Type]),
   sleep(Time, Type, false);
 sleep(Time, Type, _Debug) ->
@@ -205,7 +205,7 @@ need_positive(Match) ->
 %%----------------------------------------------------------------------
 atom_join(List) ->
   atom_join(List, "_").
-atom_join(List, Separator) when Separator =/= "_"->
+atom_join(List, Separator) when Separator =/= "_" ->
   Lists = atoms_to_list(List),
   string:join(Lists, Separator);
 atom_join(List, Separator) ->
@@ -226,15 +226,15 @@ atoms_to_list(List) ->
 list_join(List) ->
   list_join(List, "_").
 
-list_join(List, Separator) when Separator =/= "_"->
+list_join(List, Separator) when Separator =/= "_" ->
   Lists = atoms_to_list(List),
   string:join(Lists, Separator);
 list_join(List, Separator) ->
-  Lists = [need_list(Item)|| Item <- List ],
+  Lists = [need_list(Item) || Item <- List],
   list_to_atom(string:join(Lists, Separator)).
 
 
--spec get_time_difference(TimeStarted :: integer(), TimeEnded :: integer() ) -> list().
+-spec get_time_difference(TimeStarted :: integer(), TimeEnded :: integer()) -> list().
 %%----------------------------------------------------------------------
 %% @doc Gets the time difference between to dates
 %%----------------------------------------------------------------------
@@ -250,8 +250,8 @@ get_time_difference(TimeStarted, TimeEnded, Type) ->
     seconds ->
       Difference;
     miliseconds ->
-      {Mega,Sec,Micro} = Difference,
-      (Mega*1000000+Sec)*1000000+Micro;
+      {Mega, Sec, Micro} = Difference,
+      (Mega * 1000000 + Sec) * 1000000 + Micro;
     days ->
       (Difference / 60) / 24
   end.
@@ -274,7 +274,7 @@ calc_size(String) when is_list(String) ->
   calc_size(list_to_binary(String));
 calc_size(String) ->
   Length = byte_size(String),
-  Num = float_to_list(Length / 1024 / 1024, [{decimals,2}]),
+  Num = float_to_list(Length / 1024 / 1024, [{decimals, 2}]),
   list_to_float(Num).
 
 
@@ -344,7 +344,7 @@ inf(Message, Args) ->
 %% @doc Safely divide 2 integers, avoid division by zero
 %%----------------------------------------------------------------------
 division(X, Y) ->
-  division(X,Y, 0).
+  division(X, Y, 0).
 division(X, Y, Default) ->
   case catch X / Y of
     {'EXIT', _} -> Default;
@@ -374,7 +374,7 @@ get_module_info(Mod) ->
   try
     (Mod):module_info()
   catch
-    _:_  ->
+    _:_ ->
       false
   end.
 
@@ -382,13 +382,13 @@ get_module_info(Mod) ->
 %%----------------------------------------------------------------------
 %% @doc Find an item in a list
 %%----------------------------------------------------------------------
-list_find ( _Element, [] ) ->
+list_find(_Element, []) ->
   false;
 
-list_find ( Element, [ Item | ListTail ] ) ->
-  case ( Item == Element ) of
-    true    ->  true;
-    false   ->  list_find(Element, ListTail)
+list_find(Element, [Item | ListTail]) ->
+  case (Item == Element) of
+    true -> true;
+    false -> list_find(Element, ListTail)
   end.
 
 -spec find(E :: any(), list()) -> true | false.
@@ -400,7 +400,7 @@ find(_, []) -> false;
 find(E, T) when is_tuple(T) ->
   find(E, tuple_to_list(T));
 
-find(E, [H|T]) ->
+find(E, [H | T]) ->
   case find(E, H) of
     false -> find(E, T);
     true -> true
@@ -422,18 +422,18 @@ keys(TableName) ->
   FirstKey = ets:first(TableName),
   keys(TableName, FirstKey, [FirstKey]).
 
-keys(_TableName, '$end_of_table', ['$end_of_table'|Acc]) ->
+keys(_TableName, '$end_of_table', ['$end_of_table' | Acc]) ->
   Acc;
 keys(TableName, CurrentKey, Acc) ->
   NextKey = ets:next(TableName, CurrentKey),
-  keys(TableName, NextKey, [NextKey|Acc]).
+  keys(TableName, NextKey, [NextKey | Acc]).
 
 
 -spec get_ips_from_string(String :: binary()) -> list().
 %%----------------------------------------------------------------------
 %% @doc Best attempt to get ipv6 and ipv4 from a string using regex
 %%----------------------------------------------------------------------
-get_ips_from_string(String)->
+get_ips_from_string(String) ->
   Patterns = [
     "((?:\\d{1,3}\\.){3}\\d{1,3})",
     "(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))"
@@ -449,12 +449,12 @@ do_regex(String, Patterns) ->
 
 do_regex(_String, [], Matches) ->
   Matches;
-do_regex(String, [H|T], Matches) ->
+do_regex(String, [H | T], Matches) ->
   Regex = re:run(String, H, [global, {capture, first, list}]),
   Match = case Regex of
             {match, Ip} ->
               lists:append(Matches, Ip);
-            _->
+            _ ->
               lists:append(Matches, [])
           end,
   do_regex(String, T, Match).
@@ -462,22 +462,22 @@ do_regex(String, [H|T], Matches) ->
 
 
 -spec unique(List :: list()) -> list().
-unique(List)->
+unique(List) ->
   sets:to_list(sets:from_list(List)).
 
 -spec cleanup_by_list(String :: binary(), List :: list()) -> binary().
 %%----------------------------------------------------------------------
 %% @doc str_replace equivalent
 %%----------------------------------------------------------------------
-cleanup_by_list(String, List)->
+cleanup_by_list(String, List) ->
   cleanup_by_list(String, List, "").
 
 cleanup_by_list(String, List, _) when is_list(List) =/= true ->
   String;
 cleanup_by_list(String, [], _) ->
   String;
-cleanup_by_list(String, [H|T], Replace) ->
-  cleanup_by_list(re:replace(String, H, Replace,[global,{return,list}]), T, Replace).
+cleanup_by_list(String, [H | T], Replace) ->
+  cleanup_by_list(re:replace(String, H, Replace, [global, {return, list}]), T, Replace).
 
 
 
@@ -523,5 +523,25 @@ is_string(_) -> false.
 %% @doc Perform a percent calculation by using a Base number and its Divisor, to get
 %% the percent that represents the last of the base.
 %%----------------------------------------------------------------------
-percent(Base, Divisor)->
+percent(Base, Divisor) ->
   round((Divisor / Base) * 100).
+
+-spec is_alive(Name :: atom()) -> pid() | false.
+%%
+%% @doc Seeks a Process by its name and gets its Pid, if not running returns false,
+%% otherwise returns its pid
+%%
+is_alive(Name) ->
+  is_alive(Name, whereis(Name)).
+
+is_alive(_, undefined) ->
+  false;
+is_alive(Name, Pid) ->
+  is_alive(Name, Pid, process_info(Pid)).
+
+is_alive(Name, Pid, undefined) ->
+  exit(Pid, normal),
+  unregister(Name),
+  false;
+is_alive(_, Pid, _) ->
+  Pid.
