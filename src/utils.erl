@@ -24,7 +24,7 @@
 -export([debug/3, debug/2, debug/1, warning/2, warning/1, err/1, err/2, inf/1, inf/2]).
 -export([division/2, division/3, default/2, get_module_info/1]).
 %% List utilities
--export([list_find/2, rem_all_occurrences/2, find/2, keys/1, unique/1]).
+-export([list_find/2, rem_all_occurrences/2, find/2, keys/1, unique/1, flatten/1]).
 %% Escaping utilities
 -export([escape_uri/1, is_string/1, percent/2, is_alive/1]).
 
@@ -545,3 +545,14 @@ is_alive(Name, Pid, undefined) ->
   false;
 is_alive(_, Pid, _) ->
   Pid.
+
+
+-spec flatten(List :: list()) -> list().
+%%
+%% @doc Simplifies a multidimensional list into a simple list
+%%
+flatten(X) -> lists:reverse(flatten(X,[])).
+
+flatten([],Acc) -> Acc;
+flatten([H|T],Acc) when is_list(H) -> flatten(T, flatten(H,Acc));
+flatten([H|T],Acc) -> flatten(T,[H|Acc]).
