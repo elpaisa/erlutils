@@ -26,7 +26,7 @@
 %% List utilities
 -export([list_find/2, rem_all_occurrences/2, find/2, keys/1, unique/1, flatten/1]).
 %% Escaping utilities
--export([escape_uri/1, is_string/1, percent/2, is_alive/1]).
+-export([escape_uri/1, is_string/1, percent/2, is_alive/1, b2int/1]).
 
 
 -spec get_attribute(Key :: binary(), #{}) -> binary() | tuple() | number() | undefined.
@@ -556,3 +556,14 @@ flatten(X) -> lists:reverse(flatten(X,[])).
 flatten([],Acc) -> Acc;
 flatten([H|T],Acc) when is_list(H) -> flatten(T, flatten(H,Acc));
 flatten([H|T],Acc) -> flatten(T,[H|Acc]).
+
+
+-spec b2int(Bool :: boolean()) -> integer().
+%%----------------------------------------------------------------------
+%% @doc Converts a boolean to its corresponding integer value true = 1, false = 0,
+%% if some value other than a boolean is received it will return 0.
+%%----------------------------------------------------------------------
+b2int(true)->
+  1;
+b2int(_)->
+  0.
